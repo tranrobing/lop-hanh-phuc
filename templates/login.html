@@ -1,38 +1,12 @@
-{% extends "base.html" %}
-
-{% block title %}Đăng nhập - Lớp Hạnh Phúc{% endblock %}
-
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card">
-            <div class="card-header text-center">
-                <h4 class="mb-0">Đăng nhập</h4>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('auth.login') }}">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Mật khẩu <small class="text-muted">(Chỉ cho Admin)</small></label>
-                        <input type="password" class="form-control" id="password" name="password" autocomplete="current-password">
-                        <div class="form-text">Giáo viên chỉ cần nhập email để đăng nhập</div>
-                    </div>
-                    
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                        <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Đăng nhập</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+<head><title>Login</title></head>
+<body>
+    <h2>Đăng nhập</h2>
+    <form method="POST">
+        <input type="email" name="email" placeholder="Email" required><br>
+        <input type="password" name="password" placeholder="Mật khẩu"><br>
+        <button type="submit">Đăng nhập</button>
+    </form>
+</body>
+</html>
