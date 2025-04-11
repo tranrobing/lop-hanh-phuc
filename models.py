@@ -1,86 +1,74 @@
-from datetime import datetime
-import pytz
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from app import db
 
-# Set timezone for Vietnam
-vietnam_tz = pytz.timezone('Asia/Ho_Chi_Minh')
+db = SQLAlchemy()
 
-class User(UserMixin, db.Model):
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256), nullable=True)  # Only required for admin
+    name = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True)
+    password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(vietnam_tz))
-    
-    # Relationship: One user can be a teacher
-    teacher = db.relationship('Teacher', back_populates='user', uselist=False)
-    
-    def is_teacher(self):
-        return self.teacher is not None
 
-class Teacher(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(vietnam_tz))
-    
-    # Relationship: Teacher is associated with one User
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship('User', back_populates='teacher')
-    
-    # Relationship: Teacher can have many attendance records
-    attendance_records = db.relationship('TeacherAttendance', back_populates='teacher', cascade='all, delete-orphan')
+    teacher = db.relationship('Teacher', backref='user', uselist=False)
+
 
 class Student(db.Model):
+    __tablename__ = 'students'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    photo_url = db.Column(db.String(255), nullable=True)  # URL to stored photo
-    active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(vietnam_tz))
-    
-    # Relationship: Student can have many attendance records
-    attendance_records = db.relationship('StudentAttendance', back_populates='student', cascade='all, delete-orphan')
+    photo = db.Column(db.String(255), nullable=True)
 
-class TeacherAttendance(db.Model):
+    attendance_records = db.relationship('StudentAttendance', backref='student', lazy=True)
+
+
+class Teacher(db.Model):
+    __tablename__ = 'teachers'
+
     id = db.Column(db.Integer, primary_key=True)
-    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable=False)
-    date = db.Column(db.Date, nullable=False)
-    time = db.Column(db.Time, nullable=False)
-    shift_type = db.Column(db.String(20), nullable=False)  # 'morning', 'afternoon', '1on1_1h', '1on1_1.5h', '1on1_2h'
-    marked_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(vietnam_tz))
-    
-    # Unique constraint to ensure a teacher can only clock in once per shift per day
-    __table_args__ = (
-        db.UniqueConstraint('teacher_id', 'date', 'shift_type', name='uix_teacher_date_shift'),
-    )
-    
-    # Relationships
-    teacher = db.relationship('Teacher', back_populates='attendance_records')
-    marked_by = db.relationship('User')
-    
-    # For Google Sheets sync tracking
-    gsheet_row_id = db.Column(db.Integer, nullable=True)  # To track which row in Google Sheets
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True)
+    phone = db.Column(db.String(20))
+    hourly_rate = db.Column(db.Float)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    attendance_records = db.relationship('TeacherAttendance', backref='teacher', lazy=True)
+
 
 class StudentAttendance(db.Model):
+    __tablename__ = 'student_attendance'
+
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    marked_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     time = db.Column(db.Time, nullable=False)
-    marked_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(vietnam_tz))
-    
-    # Unique constraint to ensure a student can only be marked once per day
-    __table_args__ = (
-        db.UniqueConstraint('student_id', 'date', name='uix_student_date'),
-    )
-    
-    # Relationships
-    student = db.relationship('Student', back_populates='attendance_records')
-    marked_by = db.relationship('User')
-    
-    # For Google Sheets sync tracking
-    gsheet_row_id = db.Column(db.Integer, nullable=True)  # To track which row in Google Sheets
+    notes = db.Column(db.String(255))
+
+
+class TeacherAttendance(db.Model):
+    __tablename__ = 'teacher_attendance'
+
+    id = db.Column(db.Integer, primary_key=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'), nullable=False)
+    shift_id = db.Column(db.Integer, db.ForeignKey('shifts.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    check_in = db.Column(db.Time, nullable=False)
+    notes = db.Column(db.String(255))
+
+
+class Shift(db.Model):
+    __tablename__ = 'shifts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    start_time = db.Column(db.String(10), nullable=False)
+    end_time = db.Column(db.String(10), nullable=False)
+    duration = db.Column(db.Float, nullable=False)
+    one_on_one = db.Column(db.Boolean, default=False)
+
+    attendance_records = db.relationship('TeacherAttendance', backref='shift', lazy=True)
