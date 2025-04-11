@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Báo cáo - Lớp Hạnh Phúc{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="border-bottom pb-2">Báo cáo tháng {{ month_name }} {{ year }}</h2>
+    </div>
+    <div class="col-md-4">
+        <form method="get" class="d-flex">
+            <select name="month" class="form-select me-2">
+                {% for m in range(1, 13) %}
+                    <option value="{{ m }}" {% if m == month %}selected{% endif %}>Tháng {{ m }}</option>
+                {% endfor %}
+            </select>
+            <select name="year" class="form-select me-2">
+                {% for y in range(2023, 2030) %}
+                    <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Xem</button>
+        </form>
+    </div>
+</div>
+
+<!-- Teacher Statistics -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Thống kê giáo viên</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Giáo viên</th>
+                        <th>Tổng ca</th>
+                        <th>Tổng giờ</th>
+                        <th>Ca sáng</th>
+                        <th>Ca chiều</th>
+                        <th>Ca 1-1</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in teacher_stats %}
+                        <tr>
+                            <td>{{ stat.name }}</td>
+                            <td>{{ stat.total_shifts }}</td>
+                            <td>{{ stat.total_hours }}</td>
+                            <td>{{ stat.morning }}</td>
+                            <td>{{ stat.afternoon }}</td>
+                            <td>{{ stat.one_on_one }}</td>
+                            <td>
+                                <a href="{{ url_for('reports.teacher_detail_report', teacher_id=stat.id, year=year, month=month) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-info-circle"></i> Chi tiết
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">Không có dữ liệu điểm danh giáo viên trong tháng này.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Student Attendance Calendar -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Điểm danh học sinh</h5>
+        <a href="{{ url_for('reports.student_attendance_report', year=year, month=month) }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-table"></i> Xem chi tiết
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr class="bg-secondary">
+                        <th>Thứ 2</th>
+                        <th>Thứ 3</th>
+                        <th>Thứ 4</th>
+                        <th>Thứ 5</th>
+                        <th>Thứ 6</th>
+                        <th>Thứ 7</th>
+                        <th class="text-danger">CN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for week in calendar %}
+                        <tr>
+                            {% for day in week %}
+                                {% if day != 0 %}
+                                    {% set date_str = '{:04d}-{:02d}-{:02d}'.format(year, month, day) %}
+                                    {% set is_sunday = loop.index == 7 %}
+                                    
+                                    <td class="{% if is_sunday %}text-danger{% endif %}" style="height: 80px; width: 14.28%;">
+                                        <div class="d-flex flex-column h-100">
+                                            <div class="fw-bold">{{ day }}</div>
+                                            
+                                            {% if not is_sunday and date_str in student_attendance %}
+                                                <div class="mt-auto">
+                                                    <div class="progress" style="height: 20px;">
+                                                        <div class="progress-bar bg-success" role="progressbar" 
+                                                            style="width: {{ student_attendance[date_str].percentage }}%;" 
+                                                            aria-valuenow="{{ student_attendance[date_str].percentage }}" 
+                                                            aria-valuemin="0" 
+                                                            aria-valuemax="100">
+                                                            {{ student_attendance[date_str].count }}/{{ total_students }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                {% else %}
+                                    <td></td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

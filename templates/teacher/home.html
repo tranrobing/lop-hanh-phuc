@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Trang chủ Giáo viên - Lớp Hạnh Phúc{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="border-bottom pb-2">Xin chào, {{ teacher.name }}</h2>
+    </div>
+</div>
+
+<!-- Self Attendance Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Chấm công</h5>
+    </div>
+    <div class="card-body">
+        {% if is_sunday %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>Hôm nay là Chủ Nhật. Không thể chấm công vào ngày nghỉ.
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Ca sáng</h5>
+                            <p class="card-text text-muted">06:00 - 12:00</p>
+                            {% if morning_attended %}
+                                <button class="btn btn-success w-100" disabled>
+                                    <i class="fas fa-check-circle me-2"></i>Đã chấm công
+                                </button>
+                            {% elif show_morning %}
+                                <form action="{{ url_for('attendance.teacher_clock_in') }}" method="post">
+                                    <input type="hidden" name="shift_type" value="morning">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-clock me-2"></i>Chấm công
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-secondary w-100" disabled>
+                                    <i class="fas fa-lock me-2"></i>Ngoài giờ quy định
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Ca chiều</h5>
+                            <p class="card-text text-muted">12:00 - 16:45</p>
+                            {% if afternoon_attended %}
+                                <button class="btn btn-success w-100" disabled>
+                                    <i class="fas fa-check-circle me-2"></i>Đã chấm công
+                                </button>
+                            {% elif show_afternoon %}
+                                <form action="{{ url_for('attendance.teacher_clock_in') }}" method="post">
+                                    <input type="hidden" name="shift_type" value="afternoon">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-clock me-2"></i>Chấm công
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-secondary w-100" disabled>
+                                    <i class="fas fa-lock me-2"></i>Ngoài giờ quy định
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Ca 1-1</h5>
+                            <p class="card-text text-muted">16:45 - 21:00</p>
+                            
+                            {% if show_1on1 %}
+                                <div class="d-grid gap-2">
+                                    {% if oneon1_1h_attended %}
+                                        <button class="btn btn-success btn-sm mb-1" disabled>
+                                            <i class="fas fa-check-circle me-1"></i>Đã chấm công 1 giờ
+                                        </button>
+                                    {% else %}
+                                        <form action="{{ url_for('attendance.teacher_clock_in') }}" method="post">
+                                            <input type="hidden" name="shift_type" value="1on1_1h">
+                                            <button type="submit" class="btn btn-primary btn-sm mb-1">
+                                                <i class="fas fa-clock me-1"></i>Ca 1 giờ
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    
+                                    {% if oneon1_15h_attended %}
+                                        <button class="btn btn-success btn-sm mb-1" disabled>
+                                            <i class="fas fa-check-circle me-1"></i>Đã chấm công 1.5 giờ
+                                        </button>
+                                    {% else %}
+                                        <form action="{{ url_for('attendance.teacher_clock_in') }}" method="post">
+                                            <input type="hidden" name="shift_type" value="1on1_1.5h">
+                                            <button type="submit" class="btn btn-primary btn-sm mb-1">
+                                                <i class="fas fa-clock me-1"></i>Ca 1.5 giờ
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    
+                                    {% if oneon1_2h_attended %}
+                                        <button class="btn btn-success btn-sm" disabled>
+                                            <i class="fas fa-check-circle me-1"></i>Đã chấm công 2 giờ
+                                        </button>
+                                    {% else %}
+                                        <form action="{{ url_for('attendance.teacher_clock_in') }}" method="post">
+                                            <input type="hidden" name="shift_type" value="1on1_2h">
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-clock me-1"></i>Ca 2 giờ
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <button class="btn btn-secondary w-100" disabled>
+                                    <i class="fas fa-lock me-2"></i>Ngoài giờ quy định
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Student Attendance Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Điểm danh học sinh</h5>
+    </div>
+    <div class="card-body">
+        {% if is_sunday %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>Hôm nay là Chủ Nhật. Không thể điểm danh vào ngày nghỉ.
+            </div>
+        {% elif students %}
+            <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+                {% for student_data in students %}
+                    <div class="col">
+                        <div class="card h-100 {% if student_data.present %}border-success{% else %}border-danger{% endif %}">
+                            <div class="card-header {% if student_data.present %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+                                {{ student_data.student.name }}
+                            </div>
+                            <div class="card-body text-center">
+                                {% if student_data.student.photo_url %}
+                                    <img src="{{ student_data.student.photo_url }}" alt="{{ student_data.student.name }}" class="img-fluid rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                {% else %}
+                                    <div class="avatar-placeholder mb-3 mx-auto">
+                                        <i class="fas fa-user-graduate"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if student_data.present %}
+                                    <div class="text-success">
+                                        <i class="fas fa-check-circle me-1"></i>Có mặt
+                                    </div>
+                                {% else %}
+                                    <div class="text-danger mb-2">
+                                        <i class="fas fa-times-circle me-1"></i>Chưa có mặt
+                                    </div>
+                                    
+                                    <form action="{{ url_for('attendance.mark_student_attendance') }}" method="post">
+                                        <input type="hidden" name="student_id" value="{{ student_data.student.id }}">
+                                        <button type="submit" class="btn btn-sm btn-success w-100">
+                                            <i class="fas fa-check me-1"></i>Điểm danh
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Không có học sinh nào.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Summary & Calendar -->
+<div class="row">
+    <!-- Monthly Summary -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Tổng kết {{ month_name }} {{ year }}</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Tổng ca sáng:</span>
+                        <span class="badge bg-primary rounded-pill">{{ total_morning }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Tổng ca chiều:</span>
+                        <span class="badge bg-primary rounded-pill">{{ total_afternoon }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Tổng ca 1-1:</span>
+                        <span class="badge bg-primary rounded-pill">{{ total_1on1 }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Tổng số giờ:</span>
+                        <span class="badge bg-success rounded-pill">{{ total_hours }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calendar -->
+    <div class="col-md-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Lịch giảng dạy - {{ month_name }} {{ year }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center">
+                        <thead>
+                            <tr class="bg-secondary">
+                                <th>T2</th>
+                                <th>T3</th>
+                                <th>T4</th>
+                                <th>T5</th>
+                                <th>T6</th>
+                                <th>T7</th>
+                                <th class="text-danger">CN</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for week in calendar %}
+                                <tr>
+                                    {% for day in week %}
+                                        {% if day != 0 %}
+                                            {% set date_str = '{:04d}-{:02d}-{:02d}'.format(year, month, day) %}
+                                            {% set is_today = today.strftime('%Y-%m-%d') == date_str %}
+                                            {% set is_sunday = loop.index == 7 %}
+                                            
+                                            <td class="{% if is_today %}bg-info bg-opacity-25{% elif is_sunday %}bg-light text-danger{% endif %}" 
+                                                style="height: 60px; width: 14.28%; font-size: 0.8rem;">
+                                                <div class="fw-bold">{{ day }}</div>
+                                                
+                                                {% if date_str in attendance_by_date %}
+                                                    <div class="mt-1">
+                                                        {% for shift_type in attendance_by_date[date_str] %}
+                                                            {% if shift_type == 'morning' %}
+                                                                <span class="badge bg-warning text-dark">S</span>
+                                                            {% elif shift_type == 'afternoon' %}
+                                                                <span class="badge bg-info">C</span>
+                                                            {% elif shift_type == '1on1_1h' %}
+                                                                <span class="badge bg-success">1h</span>
+                                                            {% elif shift_type == '1on1_1.5h' %}
+                                                                <span class="badge bg-success">1.5h</span>
+                                                            {% elif shift_type == '1on1_2h' %}
+                                                                <span class="badge bg-success">2h</span>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                        {% else %}
+                                            <td></td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 2rem;
+    }
+</style>
+{% endblock %}

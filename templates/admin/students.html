@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý học sinh - Lớp Hạnh Phúc{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="border-bottom pb-2">Quản lý học sinh</h2>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+            <i class="fas fa-plus me-1"></i> Thêm học sinh
+        </button>
+    </div>
+</div>
+
+<!-- Students Grid -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for student in students %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ student.name }}</h5>
+                    <div>
+                        {% if student.active %}
+                            <span class="badge bg-success">Đang học</span>
+                        {% else %}
+                            <span class="badge bg-danger">Không hoạt động</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body text-center">
+                    {% if student.photo_url %}
+                        <img src="{{ student.photo_url }}" alt="{{ student.name }}" class="img-fluid rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                    {% else %}
+                        <div class="avatar-placeholder mb-3 mx-auto">
+                            <i class="fas fa-user-graduate" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <button class="btn btn-sm btn-info mb-2 w-100 edit-student-btn"
+                        data-id="{{ student.id }}"
+                        data-name="{{ student.name }}"
+                        data-active="{{ student.active }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editStudentModal">
+                        <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                    </button>
+                    
+                    <button class="btn btn-sm btn-primary mb-2 w-100"
+                        data-id="{{ student.id }}"
+                        data-name="{{ student.name }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#uploadPhotoModal">
+                        <i class="fas fa-camera me-1"></i> Tải ảnh lên
+                    </button>
+                    
+                    <form action="{{ url_for('auth.manage_students') }}" method="post">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="student_id" value="{{ student.id }}">
+                        <button type="submit" class="btn btn-sm btn-danger w-100" onclick="return confirm('Bạn có chắc muốn xóa học sinh này?')">
+                            <i class="fas fa-trash me-1"></i> Xóa
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Không có học sinh nào. Vui lòng thêm học sinh mới.
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addStudentModalLabel">Thêm học sinh mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('auth.manage_students') }}" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="add">
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Tên học sinh</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Thêm học sinh</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Student Modal -->
+<div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editStudentModalLabel">Chỉnh sửa thông tin học sinh</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('auth.manage_students') }}" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="student_id" id="edit_student_id">
+                    
+                    <div class="mb-3">
+                        <label for="edit_name" class="form-label">Tên học sinh</label>
+                        <input type="text" class="form-control" id="edit_name" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="edit_active" name="active">
+                        <label class="form-check-label" for="edit_active">Đang học</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Photo Modal -->
+<div class="modal fade" id="uploadPhotoModal" tabindex="-1" aria-labelledby="uploadPhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadPhotoModalLabel">Tải ảnh lên cho <span id="photo_student_name"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('auth.manage_students') }}" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="upload_photo">
+                    <input type="hidden" name="student_id" id="photo_student_id">
+                    
+                    <div class="mb-3">
+                        <label for="photo" class="form-label">Chọn ảnh</label>
+                        <input type="file" class="form-control" id="photo" name="photo" accept="image/*" required>
+                        <div class="form-text">Ảnh sẽ được sử dụng để nhận diện khuôn mặt học sinh.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Tải lên</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle edit student button clicks
+        document.querySelectorAll('.edit-student-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                const active = this.getAttribute('data-active') === 'True';
+                
+                document.getElementById('edit_student_id').value = id;
+                document.getElementById('edit_name').value = name;
+                document.getElementById('edit_active').checked = active;
+            });
+        });
+        
+        // Handle photo upload button clicks
+        document.querySelectorAll('[data-bs-target="#uploadPhotoModal"]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                
+                document.getElementById('photo_student_id').value = id;
+                document.getElementById('photo_student_name').textContent = name;
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}

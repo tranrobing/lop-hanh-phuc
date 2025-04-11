@@ -1,0 +1,60 @@
+/* Custom CSS for Lớp Hạnh Phúc */
+
+/* Base styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Navbar brand styling */
+.navbar-brand {
+    font-weight: 600;
+}
+
+/* Card styling */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Student attendance cards */
+.avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #2c3034;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #adb5bd;
+    font-size: 2rem;
+}
+
+/* Calendar styling */
+.calendar-day {
+    height: 60px;
+    width: 14.28%;
+    font-size: 0.8rem;
+    vertical-align: top;
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .calendar-day {
+        height: 50px;
+        font-size: 0.75rem;
+    }
+}

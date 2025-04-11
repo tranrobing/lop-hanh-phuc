@@ -1,0 +1,141 @@
+I want to create a web application using Flask, named Lớp Hạnh Phúc, to manage attendance and payroll for a special education classroom.
+The UI must be in Vietnamese, simple, mobile-friendly, and responsive.
+Code should be modular and structured across the following files:
+app.py, main.py, auth.py, attendance.py, models.py, gsheet.py, reports.py, with templates/ and static/ folders.
+The database uses SQLite, and all times follow the Asia/Ho_Chi_Minh timezone.
+
+🔐 1. Login
+Two user roles:
+
+Admin: logs in using email and password
+→ Default admin: lophoanhaphanhphuc@gmail.com, password: 4446
+
+Teachers: login only with their email (no password)
+
+If a teacher logs in for the first time and their email matches a Teacher record, create a new User and link it
+
+The login page should only show the login form, no introduction or instructions
+
+👨‍🏫 2. Manage Teachers and Students
+Admin can add, edit, delete teachers and students
+
+Preloaded student list:
+
+css
+Sao chép
+Chỉnh sửa
+Hào, An Nhiên, Thiên Kim, Thiên An, Hải Nguyên, Tín, Kiệt, Duy Anh,
+Ái Vy, Hoàng Khôi, Ken, Khải, Phát, Nghi
+Students can have photos uploaded for face recognition
+
+Teachers are added by admin via name and email
+
+📆 3. Attendance & Payroll
+A. Teacher Attendance
+Teachers clock in based on shifts:
+
+Morning: 06:00 – 12:00
+
+Afternoon: 12:00 – 16:45
+
+1-on-1: 16:45 – 21:00 (3 types: 1h, 1.5h, 2h)
+
+Buttons for each shift only appear if the current time falls within the valid hours
+
+Each shift can only be marked once per day per teacher
+
+Sundays are not allowed for attendance or payroll
+
+B. Student Attendance
+Both teachers and admins can mark student attendance
+
+Students can only be marked once per day
+
+Student attendance is shown directly on the teacher homepage
+
+Students are displayed with their photo:
+
+If present → green with "Có mặt"
+
+If absent → red with "Chưa có mặt"
+
+🏠 4. Teacher Homepage
+The teacher’s homepage should contain:
+
+Self-attendance section (top), with shift buttons shown only during allowed hours
+
+Student attendance section directly below, without navigating to another page
+
+Teaching calendar:
+
+Monthly calendar view with marked days
+
+Each day shows which shift was taught
+
+Summary of:
+
+Total morning shifts
+
+Total afternoon shifts
+
+Total 1-on-1 shifts
+
+Total hours worked
+
+Sundays should be excluded
+
+🧑‍💼 5. Admin Dashboard
+Shows:
+
+Number of students who are present today
+
+Number of teachers who are currently working (based on shift), and their names
+
+Admin can:
+
+Delete incorrect attendance (students or teachers)
+
+View monthly report:
+
+All shifts taught
+
+Total shifts, hours per teacher
+
+Breakdown by date and type of shift
+
+Sundays are excluded
+
+🔄 6. Google Sheets Sync
+Use a fixed Google Sheet:
+
+bash
+Sao chép
+Chỉnh sửa
+https://docs.google.com/spreadsheets/d/1rvI7Tftvp5fFnL79IJn6FxOstDulBOyrRQJm7DePP_s/edit
+Each time someone is marked present (student or teacher), a row is added to the sheet with:
+
+Date, Time, Name, Status (Có mặt), Shift, Marked by
+
+When attendance is deleted in the app, the corresponding row in Google Sheet must be deleted as well
+
+Use gspread + oauth2client, and authenticate using a service account JSON stored in an environment variable:
+
+nginx
+Sao chép
+Chỉnh sửa
+GOOGLE_SHEETS_CREDS
+⚙️ 7. Technical Requirements
+Flask + SQLAlchemy + SQLite
+
+Flask-Login for authentication and role-based access
+
+Use pytz to localize all time to Vietnam
+
+Must be fully responsive on mobile
+
+Codebase must be clean and modular:
+
+auth.py, attendance.py, app.py, main.py, reports.py, models.py, gsheet.py, templates/, static/
+
+✅ Please generate a full Flask project structure with all the features above implemented. Make sure it's functional, clean, and easy to expand later.
+
