@@ -7,7 +7,7 @@ from sqlalchemy import func
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Email
-from .utils import get_vietnam_time
+from utils import get_vietnam_time
 
 
 class LoginForm(FlaskForm):
