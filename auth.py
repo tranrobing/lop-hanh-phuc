@@ -290,3 +290,10 @@ def manage_students():
     
     students = Student.query.all()
     return render_template('admin/students.html', students=students)
+from flask import redirect, url_for
+from app import app
+
+@app.route('/')
+def index():
+    # Khi người dùng truy cập trang chủ, chuyển đến trang login
+    return redirect(url_for('login'))
